@@ -63,8 +63,9 @@ import os
 import random
 import sys
 import logging
+import matplotlib.pyplot as plt
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 
 
 def chunks(iterable, size=10):
@@ -160,13 +161,34 @@ def evaluate(points, centers):
     return score / points.shape[0]
 
 
-def run(sourcestring, training_file, test_file, batch, log):
+def run(sourcestring, training_file, test_file, batch, log, div):
     mod = import_from_file(sourcestring)
     training_data = np.load(training_file)
-    output = mapreduce(training_data, mod.mapper, mod.reducer, batch, log)
-    centers = np.vstack(output)
     test_data = np.load(test_file)
-    return evaluate(test_data, centers)
+
+    # sample_lengths = [0.3, 0.5, 0.8, 1.0]
+    sample_lengths = np.arange(0., 1.0001, 1./div)[1:]
+    print("Trying this n of samples: {} * {}".format(sample_lengths, len(training_data)))
+    plot_x = [] # N training data
+    plot_y = [] # Score
+
+    for l in sample_lengths:
+        idx = np.random.choice(training_data.shape[0], int(l * len(training_data)), replace=False)
+        samples = training_data[idx, :]
+        print("   Training samples: {}".format(len(samples)))
+
+        output = mapreduce(samples, mod.mapper, mod.reducer, batch, log)
+        centers = np.vstack(output)
+
+        plot_x.append(len(samples))
+        plot_y.append(evaluate(test_data, centers))
+
+    plt.plot(plot_x, plot_y, alpha=0.8)
+    plt.xlabel('Number of training samples')
+    plt.ylabel('Score')
+    plt.title('Learning curve')
+    plt.grid(True)
+    plt.show()
 
 
 def main():
@@ -181,13 +203,18 @@ def main():
         'source_file', help='.py file with mapper and reducer function')
     parser.add_argument(
         '--log', '-l', help='Enable logging for debugging', action='store_true')
+    parser.add_argument(
+        '--div', '-d', help='Divider of the training set length', default='5')
+
     args = parser.parse_args()
     BATCH = 3000
+
+    args.div = int(args.div)
 
     with open(args.source_file, "r") as fin:
         source = fin.read()
 
-    print run(source, args.train_file, args.test_file, BATCH, args.log)
+    run(source, args.train_file, args.test_file, BATCH, args.log, args.div)
 
 if __name__ == "__main__":
     main()
