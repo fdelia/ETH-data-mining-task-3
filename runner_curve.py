@@ -188,7 +188,10 @@ def run(sourcestring, training_file, test_file, batch, log, div):
     plt.ylabel('Score')
     plt.title('Learning curve')
     plt.grid(True)
+
     plt.show()
+    plt.pause(1)
+    plt.close()
 
 
 def main():
