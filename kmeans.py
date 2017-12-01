@@ -2,8 +2,12 @@ import numpy as np
 np.random.seed(34)
 
 
+k = 50
+
+
 def measureDistance(center, vector):
     sm = 0
+    # TODO use numpy
     for i, v in enumerate(vector):
         sm += abs(center[i] - v)
     return sm
@@ -13,7 +17,7 @@ def mapper(key, value):
     # key: None
     # value: one line of input file
     #        2D numpy array, shape (3000, 250)
-    k = 23
+    global k
 
     # initiate random centers (uniform distribution)
     centers = np.random.randn(k, 250)
@@ -23,7 +27,7 @@ def mapper(key, value):
     nearestDistances = [1e99] * value.shape[0]
     vectors_by_centers = [[]] * k
 
-    for v, vector in enumerate(value[:3000]):
+    for v, vector in enumerate(value):#[:2000]):
         for c, center in enumerate(centers):
             dist = measureDistance(center, vector)
 
@@ -47,7 +51,7 @@ def reducer(key, values):
     # values: list of all value for that key
     # Note that we do *not* output a (key, value) pair here.
     # values: maprun -> center -> vectors
-    k = 23
+    global k
     new_centers = np.zeros((k, 250))
     # print(len(values))  # 9
     # print(len(values[0]))  # 30
@@ -67,7 +71,21 @@ def reducer(key, values):
     # print(new_centers.shape)
     # print(new_centers[:200, :].shape)
 
-    # TODO instead of crop, merge nearest centers
+    # merge nearest centers
+    while len(new_centers) > 200:
+        # print(len(new_centers))
+        distances = np.full((len(new_centers)), np.inf)
+        z = np.random.choice(len(new_centers))
+        for j in range(len(new_centers)-1):
+            if j == z:
+                continue
+            distances[j] = measureDistance(new_centers[z], new_centers[j])
+
+        ind = np.argmin(distances)
+        new_center = np.mean([new_centers[z], new_centers[ind]], axis=0)
+
+        new_centers = np.delete(new_centers, [z, ind], axis=0)
+        new_centers = np.append(new_centers, [new_center], axis=0)
 
     # Output: 200 vectors representing the selected centers
     #         each being 250 floats
