@@ -2,15 +2,11 @@ import numpy as np
 np.random.seed(34)
 
 
-k = 50
+k = 100
 
 
 def measureDistance(center, vector):
-    sm = 0
-    # TODO use numpy
-    for i, v in enumerate(vector):
-        sm += abs(center[i] - v)
-    return sm
+    return np.sum(np.abs(center - vector))
 
 
 def mapper(key, value):
@@ -27,7 +23,7 @@ def mapper(key, value):
     nearestDistances = [1e99] * value.shape[0]
     vectors_by_centers = [[]] * k
 
-    for v, vector in enumerate(value):#[:2000]):
+    for v, vector in enumerate(value):  # [:2000]):
         for c, center in enumerate(centers):
             dist = measureDistance(center, vector)
 
@@ -68,9 +64,6 @@ def reducer(key, values):
             new_centers[i] = new_center
             i += 1
 
-    # print(new_centers.shape)
-    # print(new_centers[:200, :].shape)
-
     # merge nearest centers
     while len(new_centers) > 200:
         # print(len(new_centers))
@@ -89,5 +82,5 @@ def reducer(key, values):
 
     # Output: 200 vectors representing the selected centers
     #         each being 250 floats
-    yield new_centers[:200, :]
+    yield new_centers
     # yield np.random.randn(200, 250)
