@@ -15,7 +15,7 @@ def measureDistance(center, vector):
 
 def reducer(key, values):
     k = 200
-    max_values = 10000
+    max_values = 15000
 
     # Choose the first mean µ1 uniformly at random from the set X and add it to the set M.
     centers = []
