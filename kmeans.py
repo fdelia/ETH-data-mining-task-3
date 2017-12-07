@@ -2,10 +2,11 @@ import numpy as np
 np.random.seed(34)
 
 
-k = 100
+k = 500
 
 
 def measureDistance(center, vector):
+    # return np.linalg.norm(center - vector)
     return np.sum(np.abs(center - vector))
 
 

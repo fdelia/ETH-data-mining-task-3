@@ -2,6 +2,7 @@ import numpy as np
 np.random.seed(34)
 
 
+alpha = 0.5
 k = 200  # 9 * 23 = ~200
 
 
@@ -14,7 +15,7 @@ def mapper(key, value):
     # key: None
     # value: one line of input file
     #        2D numpy array, shape (3000, 250)
-    global k
+    global alpha, k
 
     # Choose the first mean µ1 uniformly at random from the set X and add it to the set M.
     centers = []
