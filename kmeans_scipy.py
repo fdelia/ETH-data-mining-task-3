@@ -5,7 +5,6 @@ from scipy.cluster.vq import kmeans
 def mapper(key, value):
     # key: None
     # value: one line of input file
-
     yield "key", value   # this is how you yield a key, value pair
 
 
@@ -41,7 +40,8 @@ def reducer(key, values):
         for v, vector in enumerate(values[:max_values]):
             distances_all[c_int][v] = measureDistance(values[z], vector)
         distances = np.amin(distances_all[:c_int], axis=0)  # get distance of nearest point
-        distances = np.square(distances)
+        # distances = np.square(distances)
+        distances = np.power(distances, 1.8)
         distances_norm = distances / np.sum(distances)
     #     if len(centers) % 10 == 0:
     #         print('centers sampled: ' + str(len(centers)))
